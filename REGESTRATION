@@ -1,0 +1,525 @@
+package sample;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+
+import java.sql.*;
+
+public class Controller extends Application {
+    static int i=0;
+    String URL = "jdbc:mysql://localhost/javafx";
+    public static void main(String[] args) {
+        launch(args);
+    }
+    public class Student {
+
+         int  year,ia1,ia2,ia3,cta,cie;
+         String usn ,name, cn,cc,sem,branch;
+
+        public Student(String usn,String userName,int year, String course,String coursecode,String sem,String branch,int ia1,int ia2,int ia3,int cta) {
+
+            this.usn = usn;
+            this.year = year;
+            this.name = userName;
+            this.cn = course;
+            this.cc=coursecode;
+            this.sem=sem;
+            this.branch=branch;
+            this.ia1=ia1;
+            this.ia2=ia2;
+            this.ia3=ia3;
+            this.cta=cta;
+            int val1 = Math.max(ia3, (Math.max(ia1, ia2)));
+            int val2 = ia1+ia2+ia3-val1-Math.min(ia3, (Math.min(ia1, ia2)));
+            this.cie = val1+val2+cta;
+
+
+        }
+
+
+    }
+    @Override
+    public void start(Stage primaryStage) {
+
+        Insets insets = new Insets(90);
+        Student[] s1=new Student[50];
+        primaryStage.setTitle("Result management system");
+        //open
+
+        BackgroundFill background_fill = new BackgroundFill(Color.AQUAMARINE,
+                CornerRadii.EMPTY, Insets.EMPTY);
+        Background background = new Background(background_fill);
+        GridPane rtopen=new GridPane();
+        GridPane rtreg=new GridPane();
+        GridPane rtview=new GridPane();
+        GridPane rtdel=new GridPane();
+        Label lbl1=new Label("Result management System");
+        Font font = Font.font("Verdana", FontWeight.BOLD, FontPosture.ITALIC, 13);
+        lbl1.setFont(font);
+        Button goadmin=new Button("Register");
+        Button gostudent =new Button("View Result");
+        Button godel=new Button("Delete/Modify");
+        rtopen.setHgap(15);
+        rtopen.setVgap(25);
+        rtopen.setPadding(insets);
+       
+        rtopen.add(lbl1,0,0,12,2);
+        rtopen.add(goadmin,0,2,4,1);
+        rtopen.add(gostudent,5,2,5,1);
+        rtopen.add(godel,0,3,6,1);
+        rtopen.setBackground(background);
+        Scene open=new Scene(rtopen,400,400);
+        Scene register=new Scene(rtreg,500,500);
+        Scene view =new Scene(rtview,500,500);
+        Scene delete=new Scene(rtdel,500,500);
+        //open end
+
+        //Registration page
+        Insets insets1 = new Insets(20);
+        rtreg.setPadding(insets1);
+        BackgroundFill background_fill1 = new BackgroundFill(Color.GREENYELLOW,
+                CornerRadii.EMPTY, Insets.EMPTY);
+        Background background1 = new Background(background_fill1);
+        rtreg.setBackground(background1);
+        String sems[] = { "I", "II", "III",
+                        "IV","V","VI","VII","VIII" };
+        String subs[] = { "CSE", "ISE", "CIVIL",
+                        "ME", "EEE","EC","CHEM" };
+        ComboBox cbsem= new ComboBox(FXCollections.observableArrayList(sems));
+        cbsem.getSelectionModel().selectFirst();
+        ComboBox cbbranch= new ComboBox(FXCollections.observableArrayList(subs));
+        cbbranch.getSelectionModel().selectFirst();
+        Font font1 = Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 24);
+        Label lbl2=new Label("Register New Student");
+        lbl2.setFont(font1);
+        rtreg.add(lbl2,0,0,4,1);
+        Label lbl3=new Label("USN");
+        rtreg.add(lbl3,0,1);
+        Label lbl4=new Label("Name:");
+        rtreg.add(lbl4,0,2);
+        Label lbl5=new Label("Course Name");
+        rtreg.add(lbl5,0,3);
+        Label lbl6=new Label("Course Code");
+        rtreg.add(lbl6,0,4);
+        Label lbl7=new Label("Year");
+        rtreg.add(lbl7,0,5);
+        Label lbl8=new Label("Semester");
+        rtreg.add(lbl8,0,6);
+        Label lbl9=new Label("Branch");
+        rtreg.add(lbl9,0,7);
+        Label lbl10=new Label("IA1");
+        rtreg.add(lbl10,0,8);
+        Label lbl11=new Label("IA2");
+        rtreg.add(lbl11,1,8);
+        Label lbl12=new Label("IA3");
+        rtreg.add(lbl12,2,8);
+        Label lbl13=new Label("CTA");
+        rtreg.add(lbl13,3,8);
+        Label confirm=new Label("");
+        rtreg.setHgap(10);
+        rtreg.setVgap(20);
+        TextField tfusn=new TextField();
+        TextField tfname=new TextField();
+        TextField tfcn=new TextField();
+        TextField tfcc=new TextField();
+        TextField tfyr=new TextField();
+        TextField tfia1=new TextField();
+        TextField tfia2=new TextField();
+        TextField tfia3=new TextField();
+        TextField tfcta=new TextField();
+        Button regsub=new Button("Submit");
+        Button regclear=new Button("Reset");
+        Button backr=new Button("Main Menu");
+        rtreg.add(tfusn,2,1);
+        rtreg.add(tfname,2,2);
+        rtreg.add(tfcn,2,3);
+        rtreg.add(tfcc,2,4);
+        rtreg.add(tfyr,2,5);
+        rtreg.add(cbsem,2,6);
+        rtreg.add(cbbranch,2,7);
+        rtreg.add(tfia1,0,9);
+        rtreg.add(tfia2,1,9);
+        rtreg.add(tfia3,2,9);
+        rtreg.add(tfcta,3,9);
+        rtreg.add(regsub,0,10);
+        rtreg.add(regclear,1,10);
+        rtreg.add(backr ,2,10);
+        rtreg.add(confirm,0,11,4,1);
+
+        rtreg.setHgap(10);
+        rtreg.setVgap(10);
+
+        backr.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                confirm.setText("");
+                tfname.setText("");
+                tfusn.setText("");
+                tfcn.setText("");
+                tfcc.setText("");
+                tfyr.setText("");
+                tfia1.setText("");
+                tfia2.setText("");
+                tfia3.setText("");
+                tfcta.setText("");
+                primaryStage.setScene(open);
+            }
+        });
+
+        regsub.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+                    String query = "INSERT INTO fx "+"(usn,name,year,cn,cc,sem,branch,ia1,ia2,ia3,cta,cie)"+"values(?,?,?,?,?,?,?,?,?,?,?,?)";
+                    try{
+                        Connection connection = DriverManager.getConnection(URL,"root","root");
+                        PreparedStatement statement = connection.prepareStatement(query);
+                        int val1 = Math.max(Integer.parseInt(tfia3.getText()), (Math.max(Integer.parseInt(tfia1.getText()), Integer.parseInt(tfia2.getText()))));
+                        int val2 = Integer.parseInt(tfia1.getText()) + Integer.parseInt(tfia2.getText()) + Integer.parseInt(tfia3.getText()) - val1 - Math.min(Integer.parseInt(tfia3.getText()), (Math.min(Integer.parseInt(tfia1.getText()), Integer.parseInt(tfia2.getText()))));
+                        int cie = val1 + val2 + Integer.parseInt(tfcta.getText());
+                        statement.setString(1,tfusn.getText());
+                        statement.setString(2,tfname.getText());
+                        statement.setInt(3, Integer.parseInt(tfyr.getText()));
+                        statement.setString(4,tfcn.getText());
+                        statement.setString(5, tfcc.getText());
+                        statement.setString(6, (String)cbsem.getValue());
+                        statement.setString(7,(String)cbbranch.getValue());
+                        statement.setInt(8,Integer.parseInt(tfia1.getText()));
+                        statement.setInt(9,Integer.parseInt(tfia2.getText()));
+                        statement.setInt(10,Integer.parseInt(tfia3.getText()));
+                        statement.setInt(11,Integer.parseInt(tfia1.getText()));
+                        statement.setInt(12,cie);
+
+
+                        statement.executeUpdate();
+                        statement.close();
+                        connection.close();
+                    }catch ( SQLException e){e.printStackTrace();}
+                    confirm.setText("Student registered is successfully !!!");
+
+
+
+                tfname.setText("");
+                tfusn.setText("");
+                tfcn.setText("");
+                tfcc.setText("");
+                tfyr.setText("");
+                tfia1.setText("");
+                tfia2.setText("");
+                tfia3.setText("");
+                tfcta.setText("");
+
+            }
+
+                    //SQLPART
+
+
+
+
+                   // i++;
+
+
+        });
+       regclear.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                confirm.setText("");
+                tfname.setText("");
+                tfusn.setText("");
+                tfcn.setText("");
+                tfcc.setText("");
+                tfyr.setText("");
+                tfia1.setText("");
+                tfia2.setText("");
+                tfia3.setText("");
+                tfcta.setText("");
+            }
+        });
+
+
+
+        //END OF REGISTRATION DESIGN
+
+        //view page
+
+        Font font3 = Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 14);
+        Insets insets2 = new Insets(20);
+        rtview.setPadding(insets2);
+        BackgroundFill background_fill2 = new BackgroundFill(Color.PLUM,
+                CornerRadii.EMPTY, Insets.EMPTY);
+        Background background2 = new Background(background_fill2);
+        rtview.setBackground(background2);
+            Label lbl14=new Label(" Result viewing system");
+            lbl14.setFont(font1);
+            Label lbl15=new Label("Enter your USN");
+            Label lbl16=new Label("Search for your USN and result will be displayed here");
+            Label lbl17=new Label("");
+            Label lbl18=new Label("");
+            Label lbl19=new Label("");
+            lbl16.setFont(font3);
+            lbl17.setFont(font3);
+            lbl18.setFont(font3);
+            lbl19.setFont(font3);
+            TextField tfcheck=new TextField();
+            Button search=new Button("Search");
+            Button backv=new Button("Main Menu");
+            rtview.add(lbl14,0,0,4,1);
+            rtview.add(lbl15,0,1);
+            rtview.add(tfcheck,1,1);
+            rtview.add(search,2,1);
+            Separator sep=new Separator();
+            rtview.add(sep,0,2,4,1);
+            rtview.add(lbl16,0,3,4,1);
+            rtview.add(lbl17,0,4,4,1);
+            rtview.add(lbl18,0,5,4,1);
+            rtview.add(lbl19,0,6,4,1);
+            rtview.add(backv,1,7,2,1);
+
+            rtview.setHgap(10);
+            rtview.setVgap(10);
+            backv.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    tfcheck.setText("");
+                    lbl16.setText("Search for your USN and result will be displayed here");
+                    lbl17.setText("");
+                    lbl18.setText("");
+                    lbl19.setText("");
+                    primaryStage.setScene(open);
+                }
+            });
+
+            search.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        ResultSet resultSet;
+                        String query = "select * from fx where usn="+"'"+tfcheck.getText()+"'";
+                        Connection connection = DriverManager.getConnection(URL, "root", "root");
+                        PreparedStatement statement = connection.prepareStatement(query);
+                        Statement statement1 = connection.createStatement();
+                        resultSet = statement.executeQuery();
+                        while (resultSet.next()) {
+                            lbl16.setText("Name: "+resultSet.getString("name")+"   CourseName: "+resultSet.getString("cn")+"   CourseCode: "+resultSet.getString("cc"));
+                            lbl17.setText("year :"+resultSet.getString("year")+"   SEM: "+resultSet.getString("sem")+"    Branch: "+resultSet.getString("branch") );
+                            lbl18.setText("IA1: "+resultSet.getInt("ia1")+"   IA2:"+resultSet.getInt("ia2")+"   IA3:"+resultSet.getInt("ia3")+"    CTA:"+resultSet.getInt("cta"));
+                            lbl19.setText("Your CIE is:  "+resultSet.getInt("cie"));
+
+                        }
+
+                    }catch (SQLException e){e.printStackTrace();}
+
+        //delete record page
+        //Font font4 = Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 14);
+        //Insets insets2 = new Insets(20);
+        rtdel.setPadding(insets2);
+        //BackgroundFill background_fill2 = new BackgroundFill(Color.PLUM,
+          //      CornerRadii.EMPTY, Insets.EMPTY);
+       // Background background2 = new Background(background_fill2);
+        rtdel.setBackground(background2);
+        String mfs[] = { "name", "usn", "CourseName","CourseCode","year","sem","branch",
+                "ia1", "ia2","ia3","cta","cie" };
+        ComboBox cbmfs= new ComboBox(FXCollections.observableArrayList(mfs));
+        cbsem.getSelectionModel().selectFirst();
+        Label lmfs=new Label("Modify :");
+        TextField tmfs=new TextField();
+        Label d14=new Label("Delete / Modify Record");
+        lbl14.setFont(font1);
+        Label d15=new Label("Enter your USN");
+        Label d16=new Label("Search for your USN and result will be displayed here");
+        Label d17=new Label("");
+        Label d18=new Label("");
+        Label d19=new Label("");
+        lbl16.setFont(font3);
+        lbl17.setFont(font3);
+        lbl18.setFont(font3);
+        lbl19.setFont(font3);
+        TextField dtfcheck=new TextField();
+        Button dsearch=new Button("Search");
+        Button dbackv=new Button("Main Menu");
+        Button dupdate=new Button("Update");
+        Button ddelete=new Button("Delete Record");
+        rtdel.add(d14,0,0,4,1);
+        rtdel.add(d15,0,1);
+        rtdel.add(dtfcheck,1,1);
+        rtdel.add(dsearch,2,1);
+        Separator dsep=new Separator();
+        Separator dsep2=new Separator();
+        rtdel.add(dsep,0,2,4,1);
+        rtdel.add(d16,0,3,4,1);
+        rtdel.add(d17,0,4,4,1);
+        rtdel.add(d18,0,5,4,1);
+        rtdel.add(d19,0,6,4,1);
+        rtdel.add(dbackv,0,7,1,1);
+        rtdel.add(ddelete,1,7,2,1);
+        rtdel.add(dsep2,0,8,4,1);
+        rtdel.add(lmfs,0,9,1,1);
+        rtdel.add(cbmfs,1,9,1,1);
+        rtdel.add(tmfs,2,9,1,1);
+        rtdel.add(dupdate,1,10,2,1);
+        rtdel.setHgap(10);
+        rtdel.setVgap(10);
+        dbackv.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                dtfcheck.setText("");
+                d16.setText("Search for your USN and result will be displayed here");
+                d17.setText("");
+                d18.setText("");
+                d19.setText("");
+                primaryStage.setScene(open);
+            }
+        });
+
+        dsearch.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                try {
+                    ResultSet resultSet;
+                    String query = "select * from fx where usn="+"'"+dtfcheck.getText()+"'";
+                    Connection connection = DriverManager.getConnection(URL, "root", "root");
+                    PreparedStatement statement = connection.prepareStatement(query);
+                    Statement statement1 = connection.createStatement();
+                    resultSet = statement.executeQuery();
+                    while (resultSet.next()) {
+                        d16.setText("Name: "+resultSet.getString("name")+"   CourseName: "+resultSet.getString("cn")+"   CourseCode: "+resultSet.getString("cc"));
+                        d17.setText("year :"+resultSet.getString("year")+"   SEM: "+resultSet.getString("sem")+"    Branch: "+resultSet.getString("branch") );
+                        d18.setText("IA1: "+resultSet.getInt("ia1")+"   IA2:"+resultSet.getInt("ia2")+"   IA3:"+resultSet.getInt("ia3")+"    CTA:"+resultSet.getInt("cta"));
+                        d19.setText("Your CIE is:  "+resultSet.getInt("cie"));
+
+                    }
+
+                }catch (SQLException e){e.printStackTrace();}
+
+
+
+            }
+
+        });
+        ddelete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String query1 = "delete from fx where usn="+"'"+ tfcheck.getText()+"'";
+
+                try {
+                    Connection connection = DriverManager.getConnection(URL, "root", "root");
+                    PreparedStatement statement = connection.prepareStatement(query1);
+                    Statement statement1 = connection.createStatement();
+                    statement1.executeUpdate(query1);
+                }catch (Exception e){
+
+                }
+                tfcheck.setText("");
+                d16.setText("");
+                d17.setText("RECORD SUCCESSFULLY DELETED");
+                d18.setText("");
+                d19.setText("");
+            }
+        });
+
+        dupdate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+
+            public void handle(ActionEvent actionEvent) {
+                String selected=(String)cbmfs.getValue();
+                String var;
+                switch (selected){
+                    case "name":// s1[j].name=tmfs.getText();
+                                var="name";
+                                break;
+                    case "usn": //s1[j].usn=tmfs.getText();
+                        var="usn";
+                        break;
+                    case "CourseName":// s1[j].cn=tmfs.getText();
+                        var="cn";
+                        break;
+                    case "CourseCode":// s1[j].cc=tmfs.getText();
+                        var="cc";
+                        break;
+                    case "year":// s1[j].year=Integer.parseInt(tmfs.getText());
+                        var="year";
+                        break;
+                    case "sem": //s1[j].sem=tmfs.getText();
+                        var="sem";
+                        break;
+                    case "branch":// s1[j].branch=tmfs.getText();
+                        var="branch";
+                        break;
+                    case "ia1": //s1[j].ia1=Integer.parseInt(tmfs.getText());
+                        var="ia1";
+                        break;
+                    case "ia2": //s1[j].ia2=Integer.parseInt(tmfs.getText());
+                        var="ia2";
+                        break;
+                    case "ia3": //s1[j].ia3=Integer.parseInt(tmfs.getText());
+                        var="ia3";
+                        break;
+                    case "cta": //s1[j].cta=Integer.parseInt(tmfs.getText());
+                        var="cta";
+                        break;
+                    case "cie": //s1[j].cie=Integer.parseInt(tmfs.getText());
+                        var="cie";
+                        break;
+
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + selected);
+                }
+
+                try {
+                    String query1="UPDATE fx SET "+var+"="+tmfs.getText()+" WHERE usn='"+dtfcheck.getText()+"';";
+                    Connection connection = DriverManager.getConnection(URL, "root", "root");
+                    PreparedStatement statement = connection.prepareStatement(query1);
+                    Statement statement1 = connection.createStatement();
+                    statement1.executeUpdate(query1);
+                }catch (Exception e){
+
+                }
+
+            }
+        });
+        //end of delete record
+
+
+
+
+        goadmin.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                primaryStage.setScene(register);
+            }
+        });
+        gostudent.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                primaryStage.setScene(view);
+            }
+        });
+        godel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                primaryStage.setScene(delete);
+            }
+        });
+        primaryStage.setScene(open);
+        primaryStage.show();
+    }
+
+}
+
